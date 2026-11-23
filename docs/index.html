@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; form-action 'self'">
+  <title>MSME 45-day payment clock and Samadhaan builder · Open MSME</title>
+  <meta name="description" content="A single-binary tool that puts every invoice on the MSMED Act payment clock: the appointed day under s.15, the days run past it, compound interest with monthly rests under s.16, and a printable MSME Samadhaan working paper.">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="MSME 45-day payment clock and Samadhaan complaint builder">
+  <meta property="og:description" content="Track the appointed day on every invoice, compute statutory interest at three times the RBI Bank Rate with monthly rests, and print the reminder, the notice and the Samadhaan working paper yourself.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/accent.css">
+  <script src="assets/theme-init.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="https://sreenivas-sadhu-prabhakara.github.io/openmsme/">
+        <span class="dot"></span><b>Open MSME</b><span class="tag">payment clock</span>
+      </a>
+      <span class="sp"></span>
+      <a class="home" href="https://sreenivas-sadhu-prabhakara.github.io/openmsme/">All tools</a>
+      <button class="themer" data-themer type="button">Theme</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="eyebrow">Professional &amp; business services · India</div>
+        <h1>MSME 45-day payment clock and Samadhaan complaint builder</h1>
+        <p class="lede">A single binary you run on your own machine. It puts every invoice on the statutory clock, works out the compound interest the buyer owes under the MSMED Act, and prints the reminder, the notice of demand and the Samadhaan working paper for you to issue yourself.</p>
+        <div class="who">
+          <span class="pill">Registered micro and small suppliers chasing overdue invoices</span>
+          <span class="pill reg">MSMED Act 2006 · s.15, s.16 · Samadhaan</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="prose">
+        <h2>What it does</h2>
+        <p>Enter each invoice once — number, date, the day the buyer accepted the goods or services, the amount, the buyer's name and GSTIN, the payment date agreed in writing if there is one, and anything received so far. The tool then keeps four things in front of you:</p>
+        <ul>
+          <li>the <b>appointed day</b> for every invoice, worked out from the day of acceptance and the forty-five day ceiling;</li>
+          <li>a <b>live clock</b> per invoice, counting down to that day and then counting up past it;</li>
+          <li>the <b>statutory interest</b> accrued on each invoice and in total, as compound interest with monthly rests;</li>
+          <li><b>printable documents</b>: a polite reminder, a formal notice of demand citing s.15 and s.16, and a Samadhaan working paper.</li>
+        </ul>
+        <p>The Samadhaan working paper assembles your Udyam registration number, the buyer's details, the schedule of invoices, the principal outstanding and the computed interest onto one printable page, with a checklist of the documents to attach. You take that page to the MSME Samadhaan portal yourself.</p>
+
+        <h2>Who it's for</h2>
+        <p>Micro and small suppliers in <b>India</b> — job shops, fabricators, printers, consultancies, agencies, service contractors — who are registered on the Udyam portal and are waiting on money from a larger buyer. It is for the owner or the person who keeps the books: no accounting software, no login, no subscription.</p>
+        <p>It is not for medium enterprises. Sections 15 and 16 protect micro and small enterprises only.</p>
+
+        <h2>The rule it implements</h2>
+        <p>Under <b>section 15 of the Micro, Small and Medium Enterprises Development Act 2006</b>, a buyer must pay a registered micro or small supplier on or before the date agreed upon in writing, and <i>in no case shall the period agreed upon between the supplier and the buyer in writing exceed forty-five days</i> from the day of acceptance or the day of deemed acceptance. Where there is no agreement in writing, the period is fifteen days. The tool treats the last day of that period as the appointed day:</p>
+        <pre><code>appointed day = agreed date, if one was agreed in writing
+              = day of acceptance + 15 days, if not
+              = day of acceptance + 45 days, if the agreed date is later than that</code></pre>
+        <p>Section 2(b) of the Act defines the appointed day as the day immediately following the expiry of that period, so interest runs from the day after the date the tool shows.</p>
+        <p>Under <b>section 16</b>, once the appointed day has passed the buyer is liable to pay <i>compound interest with monthly interest to the supplier on that amount from the appointed day at three times of the bank rate notified by the Reserve Bank</i>. The tool implements those monthly rests literally:</p>
+        <pre><code>annual rate       = 3 x RBI Bank Rate
+each whole month  : balance = balance x (1 + annual rate / 12)
+trailing part     : balance = balance + balance x annual rate x days / 365
+interest          = balance - principal</code></pre>
+        <p>Interest for each completed month is added to the balance and itself carries interest from then on; only the days after the last monthly rest are charged as simple interest. Monthly rests are measured from the appointed day itself, and a short month is handled properly — a rest falling on 31 January lands on 28 or 29 February, not on 2 March.</p>
+        <p>If the money still does not arrive, <b>section 18</b> lets a supplier refer the dispute to the Micro and Small Enterprises Facilitation Council, which is what the MSME Samadhaan portal of the Ministry of Micro, Small and Medium Enterprises exists for. This tool prepares that paperwork; the supplier files it.</p>
+        <p>One line for buyers: unpaid dues to a micro or small enterprise can also cost the buyer a deduction. Under <b>section 43B(h) of the Income-tax Act 1961</b> a sum payable to a micro or small enterprise beyond the section 15 time limit is allowed as a deduction only in the previous year in which it is actually paid.</p>
+
+        <h2>Install &amp; run</h2>
+        <p>One binary, standard library only, no dependencies to install and no build step beyond Go itself.</p>
+        <pre><code>git clone https://github.com/sreenivas-sadhu-prabhakara/msme-payment-clock-samadhaan.git
+cd msme-payment-clock-samadhaan
+
+# run it straight away
+go run .
+
+# or build the binary once and keep it
+go build -o payment-clock .
+./payment-clock
+
+# options
+./payment-clock -addr 127.0.0.1:8080 -data ./payment-clock-data.json</code></pre>
+        <p>Then open <code>http://127.0.0.1:8080/</code> in your browser. It listens on 127.0.0.1, so nothing outside your own machine can reach it. Press Ctrl+C to stop.</p>
+
+        <h2>What it stores</h2>
+        <p>One JSON file, where you tell it to put it — <code>./payment-clock-data.json</code> by default. It holds your firm's details, the Bank Rate you entered and your invoices, and it is written atomically, so an interrupted save cannot truncate your records. The file is readable and editable in any text editor, and backing it up means copying one file.</p>
+        <p>There is no account, no server and no telemetry. The tool makes no outbound connections of any kind: the only network traffic is your own browser talking to the binary on 127.0.0.1. It never sends an email, never sends a message and never files anything — it prepares documents for you to issue and file yourself.</p>
+
+        <h2>Features</h2>
+      </div>
+
+      <div class="featgrid">
+        <div class="feat">
+          <h3>The appointed day, correctly</h3>
+          <p>Both limbs of s.15 — the date agreed in writing and the fifteen-day default — with the forty-five day ceiling applied in every case, and a note on the invoice when an over-long agreed date has been read down.</p>
+        </div>
+        <div class="feat">
+          <h3>A live clock per invoice</h3>
+          <p>Days left until the appointed day, then days and hours past it, ticking as you watch, alongside the status of every invoice: within time, overdue, or settled.</p>
+        </div>
+        <div class="feat">
+          <h3>Interest with monthly rests</h3>
+          <p>Compound interest at three times the Bank Rate, compounded on each completed month and pro-rated for the trailing days, per invoice and in total — with the working shown on the notice.</p>
+        </div>
+        <div class="feat">
+          <h3>Escalation letters</h3>
+          <p>A polite reminder first, then a formal notice of demand that cites s.15 and s.16, states the appointed day, shows the interest computation and sets a date to pay by.</p>
+        </div>
+        <div class="feat">
+          <h3>Samadhaan working paper</h3>
+          <p>Your Udyam number, the buyer's details, the invoice schedule, the principal, the interest, the basis of computation and a checklist of documents to attach — one printable page per buyer.</p>
+        </div>
+        <div class="feat">
+          <h3>Your Bank Rate, your date</h3>
+          <p>The Bank Rate is a single setting you can change when the Reserve Bank revises it, and every figure can be computed as on any date you choose, not just today.</p>
+        </div>
+        <div class="feat">
+          <h3>Part payments handled</h3>
+          <p>Record what came in and when. Interest follows the principal still outstanding, and an invoice settled late still shows the interest that accrued before the money arrived.</p>
+        </div>
+        <div class="feat">
+          <h3>Yours, offline</h3>
+          <p>One binary, one local JSON file, no account and no outbound connections. Works with the laptop lid down on the aeroplane and on a machine that has never seen the internet.</p>
+        </div>
+      </div>
+
+      <div class="prose">
+        <h2>How you would use it</h2>
+        <ol class="steps">
+          <li>Run the binary and enter your firm's name, Udyam registration number and contact details once.</li>
+          <li>Check the Bank Rate against the current rate notified by the Reserve Bank of India and correct it if it has moved.</li>
+          <li>Add each unpaid invoice, with the day the buyer accepted the supply — that day, not the invoice date, starts the clock.</li>
+          <li>Watch the clock. Send the polite reminder as the appointed day approaches or shortly after it passes.</li>
+          <li>If nothing arrives, print the notice of demand, issue it on your letterhead and keep proof of delivery.</li>
+          <li>Still nothing? Build the Samadhaan working paper for that buyer, collect the documents on its checklist, and file the reference yourself on the MSME Samadhaan portal.</li>
+        </ol>
+
+        <details class="assumptions">
+          <summary>Assumptions &amp; figures</summary>
+          <ul>
+            <li><b>Bank Rate: 6.50% a year</b> is the built-in default, defined as one named constant in the code and overridable in the tool. The Bank Rate changes whenever the Reserve Bank of India revises it — confirm the current figure, and the figure that applied over the period you are claiming for, with the RBI.</li>
+            <li><b>Statutory rate = 3 × Bank Rate</b> (s.16), so 19.50% a year at the default Bank Rate.</li>
+            <li><b>45 days</b> is the ceiling on a period agreed in writing, <b>15 days</b> the period where nothing is agreed in writing (s.15).</li>
+            <li>Monthly rests compound at one twelfth of the annual rate; the trailing part month is simple interest on a <b>365-day year</b>.</li>
+            <li>The appointed day shown is the last day of the statutory period; under s.2(b) interest runs from the day after it.</li>
+            <li>Where an invoice is part paid, interest is computed on the principal still outstanding from the appointed day, which understates rather than overstates the claim.</li>
+            <li>Amounts are in rupees and rounded to paise only where they are displayed or printed.</li>
+          </ul>
+        </details>
+
+        <div class="note">This tool computes and prints; it never sends, emails or files anything. The figures are a working estimate from what you entered — the appointed day can turn on whether and when a supply was accepted, and on what was agreed in writing. Confirm the current Bank Rate with the Reserve Bank of India, check every figure against your own books, and take professional advice before you rely on a notice of demand or make a reference to a Facilitation Council.</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <span>Open MSME · open-source tool for MSMEs in India &amp; the Philippines · MIT</span>
+      <span><a href="https://sreenivas-sadhu-prabhakara.github.io/openmsme/">All tools</a></span>
+    </div>
+  </footer>
+
+  <script src="assets/ui.js"></script>
+</body>
+</html>

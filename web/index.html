@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; form-action 'self'; connect-src 'self'">
+  <title>MSME 45-day payment clock and Samadhaan builder · Open MSME</title>
+  <meta name="description" content="Track the MSMED Act appointed day on every invoice, compute compound interest with monthly rests at three times the RBI Bank Rate, and print a Samadhaan working paper.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/accent.css">
+  <script src="assets/theme-init.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <span class="brand">
+        <span class="dot"></span><b>Open MSME</b><span class="tag">payment clock</span>
+      </span>
+      <span class="sp"></span>
+      <span class="tag">running on this machine</span>
+      <button class="themer" data-themer type="button">Theme</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="eyebrow">Professional &amp; business services · India</div>
+        <h1>MSME 45-day payment clock and Samadhaan complaint builder</h1>
+        <p class="lede">Put every invoice on the statutory clock: the appointed day under section 15, the days run past it, and the compound interest with monthly rests under section 16 — then print the reminder, the notice of demand and the Samadhaan working paper yourself.</p>
+        <div class="who">
+          <span class="pill">Registered micro and small suppliers chasing overdue invoices</span>
+          <span class="pill reg">MSMED Act 2006 · s.15, s.16 · Samadhaan</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <p class="note" id="message" role="alert" hidden></p>
+
+      <div class="cols calc">
+        <section class="card" id="formCard">
+          <h2 id="formTitle">Add an invoice</h2>
+          <form id="invoiceForm" novalidate>
+            <div class="row2">
+              <div class="field">
+                <label for="no">Invoice number</label>
+                <div class="inp"><input type="text" id="no" name="no" autocomplete="off" required></div>
+              </div>
+              <div class="field">
+                <label for="amount">Invoice amount <span class="hint">₹</span></label>
+                <div class="inp"><input type="number" id="amount" name="amount" min="0" step="0.01" inputmode="decimal" required></div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="buyerName">Buyer</label>
+              <div class="inp"><input type="text" id="buyerName" name="buyerName" autocomplete="off" required></div>
+            </div>
+
+            <div class="field">
+              <label for="buyerGstin">Buyer GSTIN <span class="hint">optional, 15 characters</span></label>
+              <div class="inp"><input type="text" id="buyerGstin" name="buyerGstin" autocomplete="off" maxlength="15" spellcheck="false"></div>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <label for="date">Invoice date</label>
+                <input type="date" id="date" name="date">
+              </div>
+              <div class="field">
+                <label for="acceptanceDate">Date of acceptance <span class="hint">the clock starts here</span></label>
+                <input type="date" id="acceptanceDate" name="acceptanceDate" required>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="agreedPaymentDate">Payment date agreed in writing <span class="hint">leave blank if there is no written agreement — then the period is 15 days</span></label>
+              <input type="date" id="agreedPaymentDate" name="agreedPaymentDate">
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <label for="amountReceived">Amount received <span class="hint">₹</span></label>
+                <div class="inp"><input type="number" id="amountReceived" name="amountReceived" min="0" step="0.01" inputmode="decimal"></div>
+              </div>
+              <div class="field">
+                <label for="receivedDate">Date received</label>
+                <input type="date" id="receivedDate" name="receivedDate">
+              </div>
+            </div>
+
+            <div class="btnrow">
+              <button class="btn primary" type="submit" id="save">Add invoice</button>
+              <button class="btn ghost" type="button" id="cancelEdit" hidden>Cancel</button>
+              <button class="btn ghost" type="reset" id="clearForm">Clear</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card sticky">
+          <h2>Where you stand</h2>
+          <div class="result-primary">
+            <div class="k">Total claimable now</div>
+            <div class="v" id="totalDue">₹ 0.00</div>
+            <div class="sub" id="totalSub">No invoices on record yet.</div>
+          </div>
+
+          <table class="breakdown">
+            <tbody>
+              <tr><td>Principal outstanding</td><td class="num" id="sumPrincipal">0.00</td></tr>
+              <tr><td>Interest under s.16</td><td class="num" id="sumInterest">0.00</td></tr>
+              <tr class="sub"><td>Overdue invoices</td><td class="num" id="sumOverdue">0</td></tr>
+              <tr class="sub"><td>Still within time</td><td class="num" id="sumWithin">0</td></tr>
+              <tr class="sub"><td>Settled</td><td class="num" id="sumSettled">0</td></tr>
+              <tr class="total"><td>Total</td><td class="num" id="sumTotal">0.00</td></tr>
+            </tbody>
+          </table>
+
+          <h2>Your details and the rate</h2>
+          <form id="settingsForm" novalidate>
+            <div class="field">
+              <label for="supplierName">Your firm's name</label>
+              <div class="inp"><input type="text" id="supplierName" autocomplete="off"></div>
+            </div>
+            <div class="field">
+              <label for="udyamNumber">Udyam registration number <span class="hint">UDYAM-KR-03-0001234</span></label>
+              <div class="inp"><input type="text" id="udyamNumber" autocomplete="off" spellcheck="false"></div>
+            </div>
+            <div class="field">
+              <label for="supplierAddress">Address <span class="hint">one line</span></label>
+              <div class="inp"><input type="text" id="supplierAddress" autocomplete="off"></div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label for="supplierContact">Phone</label>
+                <div class="inp"><input type="text" id="supplierContact" autocomplete="off"></div>
+              </div>
+              <div class="field">
+                <label for="supplierEmail">Email</label>
+                <div class="inp"><input type="text" id="supplierEmail" autocomplete="off" spellcheck="false"></div>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label for="bankRatePct">RBI Bank Rate <span class="hint">% a year</span></label>
+                <div class="inp has-suf"><input type="number" id="bankRatePct" min="0" max="50" step="0.01" inputmode="decimal"><span class="suf">%</span></div>
+              </div>
+              <div class="field">
+                <label for="asOf">Figures as on</label>
+                <input type="date" id="asOf">
+              </div>
+            </div>
+            <p class="assumptions" id="rateLine"></p>
+            <div class="btnrow">
+              <button class="btn primary" type="submit">Save details</button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>Invoices on the clock</h2>
+        <table class="breakdown" id="invoiceTable">
+          <thead>
+            <tr>
+              <th scope="col">Invoice</th>
+              <th scope="col">Clock</th>
+              <th scope="col" class="num">Amounts (₹)</th>
+              <th scope="col">Documents</th>
+            </tr>
+          </thead>
+          <tbody id="invoiceRows"></tbody>
+        </table>
+        <p class="assumptions" id="emptyNote">Add your first invoice on the left. The appointed day, the days run past it and the statutory interest are computed for you.</p>
+      </section>
+
+      <section class="card" id="packetCard">
+        <h2>Samadhaan working paper</h2>
+        <p class="assumptions">A reference under section 18 is made against one buyer at a time. Pick the buyer and the tool assembles your Udyam number, the buyer's details, the invoice schedule, the principal and the computed interest on one printable page to take to the MSME Samadhaan portal yourself.</p>
+        <div class="field">
+          <label for="packetBuyer">Buyer</label>
+          <select id="packetBuyer"></select>
+        </div>
+        <div class="btnrow">
+          <button class="btn primary" type="button" id="buildPacket">Build the working paper</button>
+        </div>
+      </section>
+
+      <section class="card" id="docCard" hidden>
+        <h2 id="docTitle">Document</h2>
+        <p class="assumptions">Nothing has been sent. Print it, put it on your letterhead and issue it yourself.</p>
+        <pre id="docText"></pre>
+        <div class="btnrow">
+          <button class="btn primary" type="button" id="printDoc">Print</button>
+          <button class="btn ghost" type="button" id="copyDoc">Copy text</button>
+          <button class="btn ghost" type="button" id="closeDoc">Close</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>How the clock works</h2>
+        <div class="prose">
+          <p>Under <b>section 15</b> of the Micro, Small and Medium Enterprises Development Act 2006 a buyer must pay a registered micro or small supplier on or before the date agreed in writing, and a period agreed in writing may <b>in no case exceed forty-five days</b> from the day of acceptance or deemed acceptance. With no agreement in writing the period is <b>fifteen days</b>. That last day is the appointed day this tool counts to.</p>
+          <p>Once the appointed day passes, <b>section 16</b> makes the buyer liable to pay <b>compound interest with monthly rests at three times the Bank Rate</b> notified by the Reserve Bank of India, from the appointed day. Interest for each completed month is added to the balance and itself carries interest; the trailing part month is charged as simple interest on a 365-day year.</p>
+          <p>If the money still does not come, section 18 lets you refer the dispute to the Micro and Small Enterprises Facilitation Council, which is what the MSME Samadhaan portal is for. This tool prepares the paperwork; <b>you</b> file it.</p>
+          <details class="assumptions">
+            <summary>Assumptions and figures</summary>
+            <ul>
+              <li>Appointed day = the date agreed in writing, or acceptance + 15 days with no written agreement, capped at acceptance + 45 days in every case.</li>
+              <li>The appointed day shown is the last day of the statutory period. Section 2(b) defines the appointed day as the day immediately following the expiry of that period, so interest runs from the day after the date shown.</li>
+              <li>Interest = three times the RBI Bank Rate, compounded on each completed month from the appointed day, with the trailing part month simple on a 365-day year.</li>
+              <li>The Bank Rate defaults to 6.50% a year and is yours to override above. It changes — check the current Bank Rate notified by the Reserve Bank of India.</li>
+              <li>Where an invoice is part paid, interest is computed on the principal still outstanding from the appointed day, which understates rather than overstates the claim.</li>
+              <li>An invoice settled after its appointed day still shows the interest that accrued up to the day the money arrived, because paying late does not extinguish the section 16 liability.</li>
+              <li>Only a micro or small enterprise registered on the Udyam portal can rely on these provisions. A medium enterprise cannot.</li>
+            </ul>
+          </details>
+          <div class="note">This tool computes and prints; it never sends, emails or files anything. Figures are a working estimate for your own books — confirm the current Bank Rate with the Reserve Bank of India and take advice before you rely on a notice or a reference. Buyers should note that under section 43B(h) of the Income-tax Act 1961 a sum payable to a micro or small enterprise beyond the section 15 time limit is allowed as a deduction only in the previous year in which it is actually paid.</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <span>Open MSME · open-source tool for MSMEs in India &amp; the Philippines · MIT</span>
+      <span><a href="https://sreenivas-sadhu-prabhakara.github.io/openmsme/">All tools</a></span>
+    </div>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

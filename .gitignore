@@ -1,0 +1,9 @@
+.DS_Store
+
+# the local data file — your own records, never committed
+*-data.json
+payment-clock-data.json
+
+# built binaries
+/payment-clock
+/msme-payment-clock-samadhaan
